@@ -73,6 +73,7 @@ def main():
                 if e.key == p.K_z:
                     gs.undoMove()
                     moveMade = True
+                    print('a')
 
         if moveMade:
             validMoves = gs.getValidMoves()
