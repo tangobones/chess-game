@@ -1,5 +1,3 @@
-import PossibleMoves
-
 class Game():
     """Game object
 
@@ -39,11 +37,11 @@ class Game():
             move = self.moveLog.pop()
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.board[move.startRow][move.startCol] = move.pieceMoved
+            self.whiteToMove = not self.whiteToMove
 
     # a ser implementado
     def getValidMoves(self):
         return self.getAllPossibleMoves()
-        
 
     def getAllPossibleMoves(self):
         moves = []
@@ -53,7 +51,7 @@ class Game():
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                     piece = self.board[r][c][1]
                     if piece == 'P':
-                        self.getPawnMoves(r, c, moves, turn)
+                        self.getPawnMoves(r, c, moves)
                     elif piece == 'R':
                         moves = self.getRookMoves(r, c, moves)
                     elif piece == 'N':
@@ -66,76 +64,110 @@ class Game():
                         self.getKingMoves(r, c, moves)
         return moves
 
-    def getPawnMoves(self, r, c, moves, turn):
-        if turn == 'w':
-            _moves = []
-            _moves = PossibleMoves.getWhitePawnPossibleMoves(r, c, _moves, self.board)
-            
-            for _move in _moves:
-                move = Move((r, c), _move, self.board)
-                moves.append(move)
-            
-            return moves
-
-        elif turn == 'b':
-            _moves = []
-            _moves = PossibleMoves.getBlackPawnPossibleMoves(r, c, _moves, self.board)
-            
-            for _move in _moves:
-                move = Move((r, c), _move, self.board)
-                moves.append(move)
-            
-            return moves      
-
-    def getRookMoves(self, r, c, moves):
-        _moves = []
-        _moves = PossibleMoves.getRookPossibleMoves(r, c, _moves)
-         
-        for _move in _moves:
-            move = Move((r, c), _move, self.board)
-            moves.append(move)
+    def inRange(self, row, col):
+        return row >= 0  and row < len(self.board) and col >= 0 and col < len(self.board)
         
+    def getPawnMoves(self, r, c, moves):
+        if self.whiteToMove: #white pawn moves
+            if self.inRange(r - 1, c):
+                if self.board[r-1][c] == '--':
+                    moves.append(Move((r, c), (r - 1, c), self.board))
+                    if self.inRange(r - 2, c):
+                        if self.board[r - 2][c][0] == '-' and r == 6:
+                            moves.append(Move((r, c), (r - 2, c), self.board))
+            if self.inRange(r -1, c - 1):
+                if self.board[r - 1][c - 1][0] == 'b':
+                    moves.append(Move((r, c), (r - 1, c - 1), self.board))
+            if self.inRange(r - 1, c + 1):
+                if self.board[r - 1][c + 1][0] == 'b':
+                    moves.append(Move((r, c), (r - 1, c + 1), self.board))
+        else:
+            if self.inRange(r+1,c):
+                if self.board[r+1][c] == '--':
+                    moves.append(Move((r, c), (r + 1, c), self.board))
+                    if self.inRange(r+2,c):
+                        if self.board[r + 2][c][0] == '-' and r == 1:
+                            moves.append(Move((r, c), (r + 2, c), self.board))
+            if self.inRange(r + 1, c - 1):
+                if self.board[r + 1][c - 1][0] == 'w':
+                    moves.append(Move((r, c), (r + 1, c - 1), self.board))
+            if self.inRange(r + 1, c + 1):
+                if self.board[r + 1][c + 1][0] == 'w':
+                    moves.append(Move((r, c), (r + 1, c + 1), self.board))            
+
         return moves
 
+    def getRookMoves(self, r, c, moves):
+        steps = [(1,0),(-1,0),(0,1),(0,-1)]
+        for step in steps:
+            j, k = step
+            i = 1
+            while True:
+                #going down
+                if self.inRange(r+i*j,c+i*k): #check if not below board
+                    if self.board[r+i*j][c+i*k] == '--': # if its empty
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        i += 1
+                    elif (self.board[r+i*j][c+i*k][0] == 'b' and self.board[r][c][0] == 'w'): # if white can capture
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        break
+                    elif (self.board[r+i*j][c+i*k][0] == 'w' and self.board[r][c][0] == 'b'): # if black can capture
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        break                    
+                    else: break              
+                else: break
+        return moves
+    
     def getBishopMoves(self, r, c, moves):
-        _moves = []
-        _moves = PossibleMoves.getBishopPossibleMoves(r, c, _moves)
-         
-        for _move in _moves:
-            move = Move((r, c), _move, self.board)
-            moves.append(move)
-        
+        steps = [(1,1),(-1,1),(1,-1),(-1,-1)]
+        for step in steps:
+            j,k = step
+            i = 1
+            while True:
+                #going down
+                if self.inRange(r+i*j,c+i*k): #check if not below board
+                    if self.board[r+i*j][c+i*k] == '--': # if its empty
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        i += 1
+                    elif (self.board[r+i*j][c+i*k][0] == 'b' and self.board[r][c][0] == 'w'): # if white can capture
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        break
+                    elif (self.board[r+i*j][c+i*k][0] == 'w' and self.board[r][c][0] == 'b'): # if black can capture
+                        moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
+                        break                    
+                    else: break              
+                else: break
         return moves
 
     def getQueenMoves(self, r, c, moves):
-        _moves = []
-        _moves = PossibleMoves.getBishopPossibleMoves(r, c, _moves)
-        _moves = PossibleMoves.getRookPossibleMoves(r, c, _moves)
-
-        for _move in _moves:
-            move = Move((r, c), _move, self.board)
-            moves.append(move)
-        
+        moves = self.getRookMoves(r,c,moves)
+        moves = self.getBishopMoves(r,c,moves)
         return moves
 
     def getKingMoves(self, r, c, moves):
-        _moves = []
-        _moves = PossibleMoves.getKingPossibleMoves(r, c, _moves)
-         
-        for _move in _moves:
-            move = Move((r, c), _move, self.board)
-            moves.append(move)
-        
+        steps = [(-1,-1),(0,1),(-1,1),(1,0),(1,1),(0,-1),(1,-1),(-1,0)]
+        for step in steps:
+            j, k = step
+            if self.inRange(r+j,c+k):
+                if self.board[r+j][c+k] == '--':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))
+                elif self.board[r+j][c+k][0] == 'b' and self.board[r][c][0] == 'w':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))
+                elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))    
         return moves
 
     def getKnightMoves(self, r, c, moves):
-        _moves = []
-        _moves = PossibleMoves.getKnightPossibleMoves(r, c, _moves)
-         
-        for _move in _moves:
-            move = Move((r, c), _move, self.board)
-            moves.append(move)
-        
+        steps = [(1,2),(-1,2),(2,1),(-2,1),(1,-2),(-1,-2),(2,-1),(-2,-1)]
+        for step in steps:
+            j, k = step
+            if self.inRange(r+j,c+k):
+                if self.board[r+j][c+k] == '--':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))
+                elif self.board[r+j][c+k][0] == 'b' and self.board[r][c][0] == 'w':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))
+                elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
+                    moves.append(Move((r,c),(r+j,c+k),self.board))
         return moves
 
 class Move():
