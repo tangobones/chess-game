@@ -80,6 +80,11 @@ def main():
 
         # draws new game state
         drawGameState(screen, gs, playerClicks, validMoves)
+        
+        # checks for checkmate
+        if len(validMoves) == 0:
+            print('CHECKMATE')
+            running = False
 
         # ticks and updates screen
         clock.tick(MAX_FPS)
