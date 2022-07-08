@@ -56,23 +56,28 @@ class Game():
         moves =  self.getAllPossibleMoves()
         for move in reversed(moves):
             self.makeMove(move)
-            if self.inCheck(self.getAllPossibleMoves()):
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
                 moves.remove(move)
+            self.whiteToMove = not self.whiteToMove
             self.undoMove()
         return moves
 
-    def inCheck(self, opponentMoves):
-        for move in opponentMoves:
-            if self.whiteToMove:
-                if self.sqUnderAttack(self.blackKingPosition, move):
-                    return True
-            else:
-                if self.sqUnderAttack(self.whiteKingPosition, move):
-                    return True
-        return False
+    def inCheck(self):
+        if self.whiteToMove:
+            return self.sqUnderAttack(self.whiteKingPosition[0], self.whiteKingPosition[1])
+        else:
+            return self.sqUnderAttack(self.blackKingPosition[0], self.blackKingPosition[1])
 
-    def sqUnderAttack(self, kingLocation, move):
-        return (move.endRow, move.endCol) == kingLocation
+    def sqUnderAttack(self, r, c):
+        self.whiteToMove = not self.whiteToMove
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove
+        for move in oppMoves:
+            if move.endRow == r and move.endCol == c:
+                return True
+        return False
+        
 
     def getAllPossibleMoves(self):
         moves = []
