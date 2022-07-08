@@ -18,8 +18,11 @@ class Game():
         ]
         self.whiteToMove = True
         self.moveLog = []
+        self.undoLog = []
         self.whiteKingPosition = (7,4)
         self.blackKingPosition = (0,4)
+        self.checkMate = False
+        self.staleMate = False
     
     def makeMove(self, move):
         """Makes a move
@@ -36,6 +39,11 @@ class Game():
                 self.whiteKingPosition = (move.endRow, move.endCol)
             else:
                 self.blackKingPosition = (move.endRow, move.endCol)
+        if self.isPawnPromotion(move):
+            self.board[move.endRow][move.endCol] = 'bQ' if self.whiteToMove else 'wQ'
+    
+    def isPawnPromotion(self, move):
+        return (move.pieceMoved == 'wP' and move.endRow == 0) or (move.pieceMoved == 'bP' and move.endRow == 7)
     
     def undoMove(self):
         """Undo the last move in the moveLog variable of the game object
@@ -51,7 +59,6 @@ class Game():
                 else:
                     self.blackKingPosition = (move.startRow, move.startCol)
 
-    # a ser implementado
     def getValidMoves(self):
         moves =  self.getAllPossibleMoves()
         for move in reversed(moves):
@@ -61,6 +68,14 @@ class Game():
                 moves.remove(move)
             self.whiteToMove = not self.whiteToMove
             self.undoMove()
+        if len(moves) == 0: #checkmate or stalemate
+            if self.inCheck():
+                self.checkMate = True
+            else: 
+                self.staleMate = True
+        else: # if we undo a move we need to come back to a not a Mate situation
+            self.checkMate = False
+            self.staleMate = False
         return moves
 
     def inCheck(self):
