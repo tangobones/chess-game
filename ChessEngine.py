@@ -18,6 +18,8 @@ class Game():
         ]
         self.whiteToMove = True
         self.moveLog = []
+        self.whiteKingPosition = (7,4)
+        self.blackKingPosition = (0,4)
     
     def makeMove(self, move):
         """Makes a move
@@ -29,6 +31,11 @@ class Game():
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
+        if move.pieceMoved[1] == 'K':
+            if move.pieceMoved[0] == 'w':
+                self.whiteKingPosition = (move.endRow, move.endCol)
+            else:
+                self.blackKingPosition = (move.endRow, move.endCol)
     
     def undoMove(self):
         """Undo the last move in the moveLog variable of the game object
@@ -38,10 +45,34 @@ class Game():
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.whiteToMove = not self.whiteToMove
+            if move.pieceMoved[1] == 'K':
+                if move.pieceMoved[0] == 'w':
+                    self.whiteKingPosition = (move.startRow, move.startCol)
+                else:
+                    self.blackKingPosition = (move.startRow, move.startCol)
 
     # a ser implementado
     def getValidMoves(self):
-        return self.getAllPossibleMoves()
+        moves =  self.getAllPossibleMoves()
+        for move in reversed(moves):
+            self.makeMove(move)
+            if self.inCheck(self.getAllPossibleMoves()):
+                moves.remove(move)
+            self.undoMove()
+        return moves
+
+    def inCheck(self, opponentMoves):
+        for move in opponentMoves:
+            if self.whiteToMove:
+                if self.sqUnderAttack(self.blackKingPosition, move):
+                    return True
+            else:
+                if self.sqUnderAttack(self.whiteKingPosition, move):
+                    return True
+        return False
+
+    def sqUnderAttack(self, kingLocation, move):
+        return (move.endRow, move.endCol) == kingLocation
 
     def getAllPossibleMoves(self):
         moves = []
@@ -103,8 +134,7 @@ class Game():
             j, k = step
             i = 1
             while True:
-                #going down
-                if self.inRange(r+i*j,c+i*k): #check if not below board
+                if self.inRange(r+i*j,c+i*k): 
                     if self.board[r+i*j][c+i*k] == '--': # if its empty
                         moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
                         i += 1
@@ -124,8 +154,7 @@ class Game():
             j,k = step
             i = 1
             while True:
-                #going down
-                if self.inRange(r+i*j,c+i*k): #check if not below board
+                if self.inRange(r+i*j,c+i*k): 
                     if self.board[r+i*j][c+i*k] == '--': # if its empty
                         moves.append(Move((r,c),(r+i*j,c+i*k),self.board))
                         i += 1
