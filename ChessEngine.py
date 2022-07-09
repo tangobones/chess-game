@@ -34,16 +34,17 @@ class Game():
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
+
+        #updates king location
         if move.pieceMoved[1] == 'K':
-            if move.pieceMoved[0] == 'w':
+            if move.pieceMoved[0] == 'w': # updates white king location if white king moved
                 self.whiteKingPosition = (move.endRow, move.endCol)
-            else:
+            else: #updates black king location if black king moved
                 self.blackKingPosition = (move.endRow, move.endCol)
-        if self.isPawnPromotion(move):
+        
+        #updates pawn to Queen if pawn is promoted
+        if move.isPawnPromotion:
             self.board[move.endRow][move.endCol] = 'bQ' if self.whiteToMove else 'wQ'
-    
-    def isPawnPromotion(self, move):
-        return (move.pieceMoved == 'wP' and move.endRow == 0) or (move.pieceMoved == 'bP' and move.endRow == 7)
     
     def undoMove(self):
         """Undo the last move in the moveLog variable of the game object
@@ -53,10 +54,12 @@ class Game():
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.whiteToMove = not self.whiteToMove
+
+            #update king location
             if move.pieceMoved[1] == 'K':
-                if move.pieceMoved[0] == 'w':
+                if move.pieceMoved[0] == 'w': #white king location to be updated
                     self.whiteKingPosition = (move.startRow, move.startCol)
-                else:
+                else: #black king location to be updated
                     self.blackKingPosition = (move.startRow, move.startCol)
 
     def getValidMoves(self):
@@ -93,7 +96,6 @@ class Game():
                 return True
         return False
         
-
     def getAllPossibleMoves(self):
         moves = []
         for r in range(len(self.board)):
@@ -120,19 +122,19 @@ class Game():
         
     def getPawnMoves(self, r, c, moves):
         if self.whiteToMove: #white pawn moves
-            if self.inRange(r - 1, c):
-                if self.board[r-1][c] == '--':
+            if self.inRange(r - 1, c): 
+                if self.board[r-1][c] ==  '--': #allow move to empty square ahead
                     moves.append(Move((r, c), (r - 1, c), self.board))
                     if self.inRange(r - 2, c):
-                        if self.board[r - 2][c][0] == '-' and r == 6:
+                        if self.board[r - 2][c][0] == '-' and r == 6: #allow move to empty square two ahead if pawn has not moved yet
                             moves.append(Move((r, c), (r - 2, c), self.board))
-            if self.inRange(r -1, c - 1):
-                if self.board[r - 1][c - 1][0] == 'b':
+            if self.inRange(r -1, c - 1): 
+                if self.board[r - 1][c - 1][0] == 'b': #allow capture if black on diagonal in front (left)
                     moves.append(Move((r, c), (r - 1, c - 1), self.board))
-            if self.inRange(r - 1, c + 1):
-                if self.board[r - 1][c + 1][0] == 'b':
+            if self.inRange(r - 1, c + 1): 
+                if self.board[r - 1][c + 1][0] == 'b': #allow capture if black on diagonal in front (right)
                     moves.append(Move((r, c), (r - 1, c + 1), self.board))
-        else:
+        else: #black pawn moving
             if self.inRange(r+1,c):
                 if self.board[r+1][c] == '--':
                     moves.append(Move((r, c), (r + 1, c), self.board))
@@ -238,6 +240,10 @@ class Move():
         self.endCol = endSq[1]
         self.pieceMoved = board[self.startRow][self.startCol]
         self.pieceCaptured = board[self.endRow][self.endCol]
+
+        #pawn promotion Flag
+        self.isPawnPromotion = (self.pieceMoved == 'wP' and self.endRow == 0) or (self.pieceMoved == 'bP' and self.endRow == 7)
+
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol 
     
     def __eq__(self, other):
