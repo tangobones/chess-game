@@ -35,7 +35,6 @@ def main():
     
     # main game loop with all event listners and function calls
     while running: 
-
         # event listner
         for e in p.event.get():
             
@@ -60,13 +59,19 @@ def main():
                 if len(playerClicks) == 2: # perform move if two clicks already logged
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                     print(move.getChessNotation())
+                    print("Move Log: ")
+                    for i in range(len(gs.moveLog)):
+                        print(gs.moveLog[i])
                     
-                    if move in validMoves or False: # True if valid moves check is required
-                        gs.makeMove(move)
-                        moveMade = True
+                    for i in range(len(validMoves)):
+                        if move == validMoves[i]:
+                            gs.makeMove(validMoves[i])
+                            moveMade = True
+                            sqSelected = ()
+                            playerClicks = []
                     
-                    sqSelected = ()
-                    playerClicks = []
+                    if not moveMade:
+                        playerClicks = [sqSelected]
             
             # keyboard handler
             elif e.type == p.KEYDOWN:
