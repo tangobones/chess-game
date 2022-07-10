@@ -35,6 +35,7 @@ def main():
     animation = False
     sqSelected = ()
     playerClicks = []
+    gameOver = False
     
     # main game loop with all event listners and function calls
     while running: 
@@ -47,37 +48,38 @@ def main():
             
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
-                location = pygame.mouse.get_pos()
-                col = location[0]//SQ_SIZE
-                row = location[1]//SQ_SIZE
-                if sqSelected == (row, col): # clicking on the same piece twice undo the click
-                    sqSelected = ()
-                    playerClicks = []
-                else:              
-                    sqSelected = (row, col)
-                    playerClicks.append(sqSelected)
-                    if gs.board[playerClicks[0][0]][playerClicks[0][1]] == "--": # checks if the first click is and empty position
+                if not gameOver:
+                    location = pygame.mouse.get_pos()
+                    col = location[0]//SQ_SIZE
+                    row = location[1]//SQ_SIZE
+                    if sqSelected == (row, col): # clicking on the same piece twice undo the click
                         sqSelected = ()
-                        playerClicks = []    
-                if len(playerClicks) == 2: # perform move if two clicks already logged
-                    move = Move(playerClicks[0], playerClicks[1], gs.board)
-                    
-                    for i in range(len(validMoves)):
-                        if move == validMoves[i]:
-                            gs.makeMove(validMoves[i])
-                            if animation: animateMove(validMoves[i], screen, gs, clock)
-                            moveMade = True
+                        playerClicks = []
+                    else:              
+                        sqSelected = (row, col)
+                        playerClicks.append(sqSelected)
+                        if gs.board[playerClicks[0][0]][playerClicks[0][1]] == "--": # checks if the first click is and empty position
                             sqSelected = ()
-                            playerClicks = []
+                            playerClicks = []    
+                    if len(playerClicks) == 2: # perform move if two clicks already logged
+                        move = Move(playerClicks[0], playerClicks[1], gs.board)
+                        
+                        for i in range(len(validMoves)):
+                            if move == validMoves[i]:
+                                gs.makeMove(validMoves[i])
+                                if animation: animateMove(validMoves[i], screen, gs, clock)
+                                moveMade = True
+                                sqSelected = ()
+                                playerClicks = []
 
-                    #Prints moveLog for debugging
-                    print("Move Log: ")
-                    for i in range(len(gs.moveLog)):
-                        print(gs.moveLog[i])   
+                        #Prints moveLog for debugging
+                        print("Move Log: ")
+                        for i in range(len(gs.moveLog)):
+                            print(gs.moveLog[i])   
 
-                    if not moveMade:
-                        playerClicks = [sqSelected]
-            
+                        if not moveMade:
+                            playerClicks = [sqSelected]
+                
             # keyboard handler
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_z: #press z to undo a move
@@ -91,7 +93,8 @@ def main():
                     sqSelected = ()
                     playerClicks = []
                     moveMade = True
-                    
+                    gameOver = False
+
 
         if moveMade:
             validMoves = gs.getValidMoves()
@@ -102,9 +105,14 @@ def main():
         
         # checks for checkmate or stalemate
         if gs.checkMate:
-            print('CHECKMATE')
+            gameOver = True
+            if gs.whiteToMove:
+                drawText(screen, "Game Ended: Black wins by checkmate")
+            else:
+                drawText(screen, "Game Ended: White wins by checkmate")
         if gs.staleMate:
-            print('STALEMATE')
+            gameOver = True
+            drawText(screen, "Game Ended: Stalemater")
 
         # ticks and updates screen
         clock.tick(MAX_FPS)
@@ -133,7 +141,7 @@ def drawGameState(screen, gs, playerClicks, validMoves):
 def hightlightLastMove(screen, gs):
     color = pygame.Color('lightblue')
     lastMove = gs.moveLog[-1]
-    padding = 0
+    padding = 5
     s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
     s.set_alpha(100)
     s.fill(color)
@@ -150,7 +158,7 @@ def highlightPossibleMoves(screen, playerClicks, validMoves):
     for move in possibleMoves:
         color = pygame.Color('light green')
         r, c = move
-        padding = 0 # adds padding to the selected piece valid moves
+        padding = 5 # adds padding to the selected piece valid moves
         s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
         s.set_alpha(100)
         s.fill(color)
@@ -171,7 +179,7 @@ def highlightSelectedPiece(screen, playerClicks):
         color = pygame.Color('light yellow')
         r = playerClicks[0][0]
         c = playerClicks[0][1]
-        padding = 0 # adds padding to the selected piece
+        padding = 5 # adds padding to the selected piece
         s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
         s.set_alpha(150)
         s.fill(color)
@@ -238,6 +246,15 @@ def animateMove(move, screen, gs, clock):
         #updates the screen
         pygame.display.flip()
         clock.tick(60)
+
+def drawText(screen, text):
+    font = pygame.font.SysFont('Helvetica', 20, True, False)
+    textObject = font.render(text, 0, pygame.Color('pink'))
+    textLocation = pygame.Rect(0,0,WIDTH,HEIGHT).move(WIDTH/2 - textObject.get_width()/2, HEIGHT/2 - textObject.get_height()/2)
+    
+    screen.blit(textObject, textLocation)
+    textObject = font.render(text,0,pygame.Color('red'))
+    screen.blit(textObject, textLocation.move(2,2))
 
 if __name__ == '__main__':
     main()
