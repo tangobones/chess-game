@@ -82,7 +82,7 @@ class Game():
                 self.board[7][7] = '--' #removes Rook
                 self.board[7][5] = 'wR' #adds white Rook back
             self.whiteToMove = not self.whiteToMove
-        elif (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == -2): #Queen side castling
+        if (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == -2): #Queen side castling
             if move.pieceMoved[0] == 'b':
                 print('queen side black castling')
                 self.board[0][0] = '--' #removes Rook
@@ -135,7 +135,7 @@ class Game():
                     self.board[0][0] = 'bR'
 
     def getValidMoves(self):
-        return self.getAllPossibleMoves()
+        return self.getAllPossibleMoves() # DELETE THIS LINE TO GET VALID MOVES WORKING AGAIN
         tempEnpassantPossible = self.enpassantPossible
         moves =  self.getAllPossibleMoves()
         for move in reversed(moves):
@@ -322,16 +322,16 @@ class Game():
 
 
         #castling checks if not moved and no obstructions (DOES NOT CHECK FOR IN CHECK AND THROUGH CHECK CONDITIONS YET)
-        if (not whiteKingMoved and c == 4):
+        if (not whiteKingMoved and c == 4 and r == 7):
             if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideWhiteRookMoved):
                 moves.append((Move((r,c),(r,c+2), self.board, isKingSideCastling=True)))
             
             if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideWhiteRookMoved):
-                moves.append((Move((r,c),(r,c+2), self.board, isQueenSideCastling=True)))       
+                moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))       
 
-        if (not blackKingMoved and c == 4):
+        if (not blackKingMoved and c == 4) and r == 0:
             if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideBlackRookMoved):
-                moves.append((Move((r,c),(r,c-2), self.board, isKingSideCastling=True)))
+                moves.append((Move((r,c),(r,c+2), self.board, isKingSideCastling=True)))
             
             if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideBlackRookMoved):
                 moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))               
