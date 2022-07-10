@@ -1,3 +1,4 @@
+from tkinter.tix import IMAGE, MAX
 import pygame
 from Game import Game
 from Move import Move
@@ -31,6 +32,7 @@ def main():
     moveMade = False # flag variable for when a move is made
     
     running = True
+    animation = True
     sqSelected = ()
     playerClicks = []
     
@@ -63,6 +65,7 @@ def main():
                     for i in range(len(validMoves)):
                         if move == validMoves[i]:
                             gs.makeMove(validMoves[i])
+                            if animation: animateMove(validMoves[i], screen, gs, clock)
                             moveMade = True
                             sqSelected = ()
                             playerClicks = []
@@ -77,9 +80,11 @@ def main():
             
             # keyboard handler
             elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_z:
+                if e.key == pygame.K_z: #PRESS Z TO UNDO MOVE
                     gs.undoMove()
                     moveMade = True
+                if e.key == pygame.K_r: #PRESS R TO TOGGLE ANIMATION EFFECTS
+                    animation = not animation
 
         if moveMade:
             validMoves = gs.getValidMoves()
@@ -112,9 +117,22 @@ def drawGameState(screen, gs, playerClicks, validMoves):
     if len(playerClicks) > 0:
         highlightSelectedPiece(screen, playerClicks)    
         highlightPossibleMoves(screen, playerClicks, validMoves)
+    
+    if len(gs.moveLog)>0:
+        hightlightLastMove(screen, gs)
 
     drawPieces(screen, gs.board)
 
+def hightlightLastMove(screen, gs):
+    color = pygame.Color('lightblue')
+    lastMove = gs.moveLog[-1]
+    padding = 0
+    s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
+    s.set_alpha(100)
+    s.fill(color)
+    screen.blit(s, (lastMove.endCol*SQ_SIZE + padding, lastMove.endRow*SQ_SIZE + padding))
+
+    
 def highlightPossibleMoves(screen, playerClicks, validMoves):
     startSq = playerClicks[0]
     possibleMoves = []
@@ -159,6 +177,7 @@ def drawBoard(screen):
     Args:
         screen (pygame screen object): pygame screen
     """
+    global colors
     colors = [pygame.Color('white'), pygame.Color('gray')]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
@@ -177,6 +196,43 @@ def drawPieces(screen, board):
             piece = board[r][c]
             if piece != '--':
                 screen.blit(IMAGES[piece], pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
+def animateMove(move, screen, gs, clock):
+
+    # ADD ANIMATION FOR THE ROOK IN CASE OF A CASTLE MOVE
+
+    board = gs.board
+    dR = move.endRow - move.startRow
+    dC = move.endCol - move.startCol
+    framesPerSquare = 15 #frame to move 1 square of animation
+    frameCount = (abs(dR)+abs(dC))*framesPerSquare
+
+
+    
+    for frame in range(frameCount + 1):
+        r, c = (move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount)
+        drawBoard(screen)
+        drawPieces(screen, board)
+        
+        #erase piece moved from ending square
+        color = colors[(move.endRow + move.endCol) % 2]
+        endSquare = pygame.Rect(move.endCol*SQ_SIZE, move.endRow*SQ_SIZE, SQ_SIZE, SQ_SIZE)
+        pygame.draw.rect(screen, color, endSquare)
+        
+        #highlights the move during animation
+        hightlightLastMove(screen, gs)
+        
+        #draw captured piece onto rectagle
+        if move.pieceCaptured != '--':
+            screen.blit(IMAGES[move.pieceCaptured], endSquare)
+        
+        #draw moving piece
+        screen.blit(IMAGES[move.pieceMoved], pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        
+        #updates the screen
+        pygame.display.flip()
+        clock.tick(60)
+
 
 if __name__ == '__main__':
     main()
