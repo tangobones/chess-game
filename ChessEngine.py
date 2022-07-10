@@ -31,6 +31,7 @@ class Game():
 
         #castling
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         self.blackKinghasMoved = False
         self.whiteKinghasMoved = False
         self.blackKingSideRookhasMoved = False
@@ -39,6 +40,8 @@ class Game():
         self.whiteKingSideRokkhasMoved = False
 
 =======
+=======
+>>>>>>> Stashed changes
         self.currentCastleRights = CastleRights(True, True, True, True) #current rights
         self.castleRightsLog = [CastleRights(self.currentCastleRights.wks,self.currentCastleRights.bks,
                                             self.currentCastleRights.wqs,self.currentCastleRights.bqs)] #log of rights
@@ -79,6 +82,7 @@ class Game():
             self.enpassantPossible = ()
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         #castling move the rook
         if (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == 2): #King side castling
             if move.pieceMoved[0] == 'b':
@@ -102,6 +106,8 @@ class Game():
             self.whiteToMove = not self.whiteToMove         
 
 =======
+=======
+>>>>>>> Stashed changes
         #update castle rights
         self.updateCastleRights(move)
         self.castleRightsLog.append(CastleRights(self.currentCastleRights.wks,self.currentCastleRights.bks,
@@ -115,6 +121,9 @@ class Game():
             elif move.isCastleQueenSide:
                 self.board[move.startRow][3] = self.board[move.startRow][0]
                 self.board[move.startRow][0] = '--'
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
 
@@ -136,9 +145,12 @@ class Game():
                     self.blackKingPosition = (move.startRow, move.startCol)
             
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             # restore pawn on the enpassant move
             if move.isEnpassant:
 =======
+=======
+>>>>>>> Stashed changes
             #restore pawn captured on enpassant
             if move.isEnpassantMove:
 >>>>>>> Stashed changes
@@ -146,6 +158,44 @@ class Game():
                 self.board[move.startRow][move.endCol] = move.pieceCaptured
                 lastMove = self.moveLog[-1] #get previous move
                 self.enpassantPossible = ((lastMove.startRow+lastMove.endRow)//2,lastMove.endCol) #restore enpassantPossibleVariable
+<<<<<<< Updated upstream
+=======
+
+            #undo castle rights update
+            self.castleRightsLog.pop()
+            castleRights = self.castleRightsLog[-1]
+            self.currentCastleRights = CastleRights(castleRights.wks,castleRights.bks,castleRights.wqs,castleRights.bqs)
+
+            #undo castle moves (change rooks back)
+            if move.isCastle:
+                if move.isCastleKingSide:
+                    self.board[move.startRow][7] = self.board[move.startRow][5]
+                    self.board[move.startRow][5] = '--'
+                elif move.isCastleQueenSide:
+                    self.board[move.startRow][0] = self.board[move.startRow][3]
+                    self.board[move.startRow][3] = '--'
+            
+    def updateCastleRights(self, move):
+        if move.pieceMoved == 'bK':
+            self.currentCastleRights.bks = False
+            self.currentCastleRights.bqs = False
+        elif move.pieceMoved == 'wK':
+            self.currentCastleRights.wks = False
+            self.currentCastleRights.wqs = False
+        elif move.pieceMoved == 'wR':
+            if move.startRow == 7:
+                if move.startCol == 0: #left rook
+                    self.currentCastleRights.wqs = False
+                elif move.startCol == 7: #right rook
+                    self.currentCastleRights.wks = False
+        elif move.pieceMoved == 'bR':
+            if move.startRow == 0:
+                if move.startCol == 0: #left rook
+                    self.currentCastleRights.bqs = False
+                elif move.startCol == 7: #right rook
+                    self.currentCastleRights.bks = False
+
+>>>>>>> Stashed changes
 
             #undo castle rights update
             self.castleRightsLog.pop()
@@ -359,6 +409,7 @@ class Game():
                     moves.append(Move((r,c),(r+j,c+k),self.board))
                 elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     moves.append(Move((r,c),(r+j,c+k),self.board))
 
         #castling moved flags
@@ -403,6 +454,8 @@ class Game():
                 moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))               
 
 =======
+=======
+>>>>>>> Stashed changes
                     moves.append(Move((r,c),(r+j,c+k),self.board)) 
 
         moves = self.getCastleMoves(r,c,moves)
@@ -430,6 +483,9 @@ class Game():
                 #if (self.sqUnderAttack(r,c-1) and self.sqUnderAttack(r,c-2) and self.sqUnderAttack(r, c-3)):
                     if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--'):
                         moves.append(Move((r,c,),(r,c-2),self.board,isCastleQueenSide=True))
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         return moves
 
@@ -475,7 +531,11 @@ class Move():
     colsToFiles = {v: k for k, v in filesToCols.items()}
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     def __init__(self, startSq, endSq, board, isEmpassant=False, isQueenSideCastling=False, isKingSideCastling=False):
+=======
+    def __init__(self, startSq, endSq, board, isEmpassantMove=False, isCastleKingSide=False, isCastleQueenSide=False):
+>>>>>>> Stashed changes
 =======
     def __init__(self, startSq, endSq, board, isEmpassantMove=False, isCastleKingSide=False, isCastleQueenSide=False):
 >>>>>>> Stashed changes
@@ -497,15 +557,21 @@ class Move():
             self.pieceCaptured = board[self.startRow][self.endCol]
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         #castling
         self.isQueenSideCastling = isQueenSideCastling
         self.isKingSideCastling = isKingSideCastling
 
 =======
+=======
+>>>>>>> Stashed changes
         #castle flags
         self.isCastleKingSide = isCastleKingSide
         self.isCastleQueenSide = isCastleQueenSide
         self.isCastle = (self.isCastleKingSide or self.isCastleQueenSide)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol 
