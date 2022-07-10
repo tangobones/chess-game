@@ -139,7 +139,15 @@ class Game():
 
     def getValidMoves(self):
         tempEnpassantPossible = self.enpassantPossible
+        tempCastleRights = CastleRights(self.currentCastleRights.wks, self.currentCastleRights.bks, self.currentCastleRights.wqs, self.currentCastleRights.bqs)
+
+        #generate possible moves
         moves =  self.getAllPossibleMoves()
+        if self.whiteToMove:
+            self.getCastleMoves(self.whiteKingPosition[0],self.whiteKingPosition[1],moves)
+        else:
+            self.getCastleMoves(self.blackKingPosition[0],self.blackKingPosition[1],moves)
+
         for move in reversed(moves):
             self.makeMove(move)
             self.whiteToMove = not self.whiteToMove
@@ -147,6 +155,7 @@ class Game():
                 moves.remove(move)
             self.whiteToMove = not self.whiteToMove
             self.undoMove()
+
         if len(moves) == 0: #checkmate or stalemate
             if self.inCheck():
                 self.checkMate = True
@@ -155,7 +164,10 @@ class Game():
         else: # if we undo a move we need to come back to a not a Mate situation
             self.checkMate = False
             self.staleMate = False
+
         self.enpassantPossible = tempEnpassantPossible
+        self.currentCastleRights = tempCastleRights
+        
         return moves
 
     def inCheck(self):
@@ -296,30 +308,27 @@ class Game():
                     moves.append(Move((r,c),(r+j,c+k),self.board))
                 elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
                     moves.append(Move((r,c),(r+j,c+k),self.board)) 
-
-        moves = self.getCastleMoves(r,c,moves)
-
         return moves
 
     def getCastleMoves(self,r,c,moves):
         if (self.currentCastleRights.wks and r == 7): #white king side castle
             if self.inRange(r,c+2):
-                #if (self.sqUnderAttack(r,c+1) and self.sqUnderAttack(r,c+2)):
+                if (not self.sqUnderAttack(r,c+1) and not self.sqUnderAttack(r,c+2) and not self.sqUnderAttack(r,c)):
                     if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--'):
                         moves.append(Move((r,c),(r,c+2),self.board,isCastleKingSide=True))
         if (self.currentCastleRights.wqs and r == 7): #white queen side castle
             if self.inRange(r,c-3):
-                #if (self.sqUnderAttack(r,c-1) and self.sqUnderAttack(r,c-2) and self.sqUnderAttack(r,c-3)):
+                if (not self.sqUnderAttack(r,c-1) and not self.sqUnderAttack(r,c-2) and not self.sqUnderAttack(r,c)):
                     if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--'):
                         moves.append(Move((r,c),(r,c-2),self.board,isCastleQueenSide=True))
         if (self.currentCastleRights.bks and r == 0): #black king side castle
             if self.inRange(r,c+2):
-                #if (self.sqUnderAttack(r,c+1) and self.sqUnderAttack(r,c+2)):
+                if (not self.sqUnderAttack(r,c+1) and not self.sqUnderAttack(r,c+2) and not self.sqUnderAttack(r,c)):
                     if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--'):
                         moves.append(Move((r,c),(r,c+2),self.board,isCastleKingSide=True))
         if (self.currentCastleRights.bqs and r == 0): #black queen side castle
             if self.inRange(r,c-3):
-                #if (self.sqUnderAttack(r,c-1) and self.sqUnderAttack(r,c-2) and self.sqUnderAttack(r, c-3)):
+                if (not self.sqUnderAttack(r,c-1) and not self.sqUnderAttack(r,c-2) and not self.sqUnderAttack(r,c)):
                     if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--'):
                         moves.append(Move((r,c,),(r,c-2),self.board,isCastleQueenSide=True))
         return moves
