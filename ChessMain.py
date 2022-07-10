@@ -32,7 +32,7 @@ def main():
     moveMade = False # flag variable for when a move is made
     
     running = True
-    animation = True
+    animation = False
     sqSelected = ()
     playerClicks = []
     
@@ -80,11 +80,18 @@ def main():
             
             # keyboard handler
             elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_z: #PRESS Z TO UNDO MOVE
+                if e.key == pygame.K_z: #press z to undo a move
                     gs.undoMove()
                     moveMade = True
-                if e.key == pygame.K_r: #PRESS R TO TOGGLE ANIMATION EFFECTS
+                if e.key == pygame.K_a: #press a to toggle animation effects
                     animation = not animation
+                if e.key == pygame.K_r: #press r to reset the board
+                    gs = Game()
+                    validMoves = gs.getValidMoves()
+                    sqSelected = ()
+                    playerClicks = []
+                    moveMade = True
+                    
 
         if moveMade:
             validMoves = gs.getValidMoves()
@@ -132,7 +139,6 @@ def hightlightLastMove(screen, gs):
     s.fill(color)
     screen.blit(s, (lastMove.endCol*SQ_SIZE + padding, lastMove.endRow*SQ_SIZE + padding))
 
-    
 def highlightPossibleMoves(screen, playerClicks, validMoves):
     startSq = playerClicks[0]
     possibleMoves = []
@@ -232,7 +238,6 @@ def animateMove(move, screen, gs, clock):
         #updates the screen
         pygame.display.flip()
         clock.tick(60)
-
 
 if __name__ == '__main__':
     main()
