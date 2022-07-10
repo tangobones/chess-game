@@ -10,3 +10,8 @@ Left mouse click highlighted valid move to move the piece (green highlight)
 Press z: Undo last move
 Press a: Toggle animation effects
 Press r: Reset the board
+
+
+AI Mode:
+
+AI will only play after player clicks the screen

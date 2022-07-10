@@ -1,6 +1,7 @@
 import pygame
 from Game import Game
 from Move import Move
+import ChessAI
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -35,9 +36,12 @@ def main():
     sqSelected = ()
     playerClicks = []
     gameOver = False
+    playerOne = True #If human is playing white this must be true if AI is playing this needs to be false
+    playerTwo = False #same as above but for black
     
     # main game loop with all event listners and function calls
     while running: 
+        isHumanTurn = ((gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo))        
         # event listner
         for e in pygame.event.get():
             
@@ -47,7 +51,7 @@ def main():
             
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and isHumanTurn:
                     location = pygame.mouse.get_pos()
                     col = location[0]//SQ_SIZE
                     row = location[1]//SQ_SIZE
@@ -70,15 +74,30 @@ def main():
                                 moveMade = True
                                 sqSelected = ()
                                 playerClicks = []
-
-                        #Prints moveLog for debugging
-                        print("Move Log: ")
-                        for i in range(len(gs.moveLog)):
-                            print(gs.moveLog[i])   
-
-                        if not moveMade:
-                            playerClicks = [sqSelected]
+                            if not moveMade:
+                                playerClicks = [sqSelected]
                 
+                #AI move finder logic
+                if not gameOver and not isHumanTurn:
+                    sqSelected = ()
+                    playerClicks = []
+                    moveMade = True
+                    AIMove = ChessAI.findRandomMove(validMoves)
+                    gs.makeMove(AIMove)
+                    if animation: animateMove(AIMove, screen, gs, clock)
+                    
+                
+                #updated validMoves if move is made
+                if moveMade:
+                    
+                    #Prints moveLog for debugging
+                    print("Move Log: ")
+                    for i in range(len(gs.moveLog)):
+                        print(gs.moveLog[i])   
+
+                    validMoves = gs.getValidMoves()
+                    moveMade = False
+
             # keyboard handler
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_z: #press z to undo a move
@@ -95,9 +114,7 @@ def main():
                     gameOver = False
 
 
-        if moveMade:
-            validMoves = gs.getValidMoves()
-            moveMade = False
+
 
         # draws new game state
         drawGameState(screen, gs, playerClicks, validMoves)
@@ -217,7 +234,7 @@ def animateMove(move, screen, gs, clock):
     board = gs.board
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 15 #frame to move 1 square of animation
+    framesPerSquare = 10 #frame to move 1 square of animation
     frameCount = (abs(dR)+abs(dC))*framesPerSquare
 
 
