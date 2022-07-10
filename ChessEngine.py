@@ -13,7 +13,7 @@ class Game():
             ["--","--","--","--","--","--","--","--"],
             ["--","--","--","--","--","--","--","--"],
             ["--","--","--","--","--","--","--","--"],
-            ["wP","wP","wP","wP","wP","wP","wP","wP"],
+            ["wP","wP","wP","wP","wP","bR","wP","wP"],
             ["wR","wN","wB","wQ","wK","wB","wN","wR"]
         ]
         self.whiteToMove = True
@@ -70,13 +70,12 @@ class Game():
                                                  self.currentCastleRights.wqs,self.currentCastleRights.bqs))
 
         #perform castle (move rooks)
-        if move.isCastle:
-            if move.isCastleKingSide:
-                self.board[move.startRow][5] = self.board[move.startRow][7]
-                self.board[move.startRow][7] = '--'
-            elif move.isCastleQueenSide:
-                self.board[move.startRow][3] = self.board[move.startRow][0]
-                self.board[move.startRow][0] = '--'
+        if move.isCastleKingSide:
+            self.board[move.startRow][5] = self.board[move.startRow][7]
+            self.board[move.startRow][7] = '--'
+        elif move.isCastleQueenSide:
+            self.board[move.startRow][3] = self.board[move.startRow][0]
+            self.board[move.startRow][0] = '--'
     
     def undoMove(self):
         """Undo the last move in the moveLog variable of the game object
@@ -107,13 +106,12 @@ class Game():
             self.currentCastleRights = CastleRights(castleRights.wks,castleRights.bks,castleRights.wqs,castleRights.bqs)
 
             #undo castle moves (change rooks back)
-            if move.isCastle:
-                if move.isCastleKingSide:
-                    self.board[move.startRow][7] = self.board[move.startRow][5]
-                    self.board[move.startRow][5] = '--'
-                elif move.isCastleQueenSide:
-                    self.board[move.startRow][0] = self.board[move.startRow][3]
-                    self.board[move.startRow][3] = '--'
+            if move.isCastleKingSide:
+                self.board[move.startRow][7] = self.board[move.startRow][5]
+                self.board[move.startRow][5] = '--'
+            elif move.isCastleQueenSide:
+                self.board[move.startRow][0] = self.board[move.startRow][3]
+                self.board[move.startRow][3] = '--'
             
     def updateCastleRights(self, move):
         if move.pieceMoved == 'bK':
@@ -221,14 +219,12 @@ class Game():
                 if self.board[r - 1][c - 1][0] == 'b': #allow capture if black on diagonal in front (left)
                     moves.append(Move((r, c), (r - 1, c - 1), self.board))
                 elif (r - 1, c - 1) == self.enpassantPossible:
-                    print('called')
                     moves.append(Move((r, c), (r - 1, c - 1), self.board, isEmpassantMove=True))
                 
             if self.inRange(r - 1, c + 1): 
                 if self.board[r - 1][c + 1][0] == 'b': #allow capture if black on diagonal in front (right)
                     moves.append(Move((r, c), (r - 1, c + 1), self.board))
                 elif (r - 1, c + 1) == self.enpassantPossible:
-                    print('called')
                     moves.append(Move((r, c), (r - 1, c + 1), self.board, isEmpassantMove=True))       
 
         else: #black pawn moving
@@ -242,13 +238,11 @@ class Game():
                 if self.board[r + 1][c - 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c - 1), self.board))
                 elif (r + 1, c - 1) == self.enpassantPossible:
-                    print('called')
                     moves.append(Move((r, c), (r + 1, c - 1), self.board, isEmpassantMove=True))                    
             if self.inRange(r + 1, c + 1):
                 if self.board[r + 1][c + 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c + 1), self.board))            
                 elif (r + 1, c + 1) == self.enpassantPossible:
-                    print('called')
                     moves.append(Move((r, c), (r + 1, c + 1), self.board, isEmpassantMove=True))     
         return moves
 
@@ -395,7 +389,6 @@ class Move():
         #castle flags
         self.isCastleKingSide = isCastleKingSide
         self.isCastleQueenSide = isCastleQueenSide
-        self.isCastle = (self.isCastleKingSide or self.isCastleQueenSide)
 
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol 
     
@@ -405,7 +398,7 @@ class Move():
         return False
     
     def __str__(self):
-        return f"    Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion})"
+        return f" Chess Notation: ({self.getChessNotation()}) --> Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}, isCastleKingSide({self.isCastleKingSide}), isCastleQuennSide: ({self.isCastleQueenSide})"
         
 
     def getChessNotation(self):
