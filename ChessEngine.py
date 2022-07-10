@@ -97,13 +97,15 @@ class Game():
             if move.isEnpassantMove:
                 self.board[move.endRow][move.endCol] = '--'
                 self.board[move.startRow][move.endCol] = move.pieceCaptured
-                lastMove = self.moveLog[-1] #get previous move
-                self.enpassantPossible = ((lastMove.startRow+lastMove.endRow)//2,lastMove.endCol) #restore enpassantPossibleVariable
+                if len(self.moveLog) > 0:
+                    lastMove = self.moveLog[-1] #get previous move
+                    self.enpassantPossible = ((lastMove.startRow+lastMove.endRow)//2,lastMove.endCol) #restore enpassantPossibleVariable
 
             #undo castle rights update
             self.castleRightsLog.pop()
-            castleRights = self.castleRightsLog[-1]
-            self.currentCastleRights = CastleRights(castleRights.wks,castleRights.bks,castleRights.wqs,castleRights.bqs)
+            if len(self.castleRightsLog) > 0:
+                castleRights = self.castleRightsLog[-1]
+                self.currentCastleRights = CastleRights(castleRights.wks,castleRights.bks,castleRights.wqs,castleRights.bqs)
 
             #undo castle moves (change rooks back)
             if move.isCastleKingSide:
@@ -398,7 +400,7 @@ class Move():
         return False
     
     def __str__(self):
-        return f" Chess Notation: ({self.getChessNotation()}) --> Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}, isCastleKingSide({self.isCastleKingSide}), isCastleQuennSide: ({self.isCastleQueenSide})"
+        return f" Chess Notation: ({self.getChessNotation()}) --> Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}), isCastleKingSide({self.isCastleKingSide}), isCastleQuennSide: ({self.isCastleQueenSide})"
         
 
     def getChessNotation(self):
@@ -407,8 +409,37 @@ class Move():
         Returns:
             String: move in chess notation
         """
-        return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
-    
+        #return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
+        
+        #TO-DO: Add check, checkmate, end of game, draw offer and disambiguating moves
+
+        # castling notation
+        if self.isCastleKingSide:
+            return 'O-O'
+        
+        if self.isCastleQueenSide:
+            return 'O-O-O'
+        
+        #if not a capture
+        if self.pieceCaptured == '--':
+            if self.pieceMoved[1] == 'P': #if pawn moves
+                ans =  self.getRankFile(self.endRow, self.endCol)
+
+            else: #if other piece moves
+                ans =  self.pieceMoved[1] + self.getRankFile(self.endRow, self.endCol) 
+        #if a capture
+        else:
+            if self.pieceMoved[1] == 'P': #if pawn captures (enpassant capture)
+                ans =  self.getRankFile(self.startRow,self.startCol)[0] + 'x' + self.getRankFile(self.endRow, self.endCol)
+
+            else: #if other piece captures
+                ans = self.pieceMoved[1] + 'x' + self.getRankFile(self.endRow, self.endCol) 
+        
+        if self.isPawnPromotion:
+            ans = ans + 'Q' #ONLY PROMOTES TO QUEEN -- IF PLAYER CAN CHOOSE WE NEED TO ADJUST THIS
+
+        return ans
+
     def getRankFile(self, r, c):
         """Helper funcion to getChessNotation
 
