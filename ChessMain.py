@@ -1,4 +1,3 @@
-from tkinter.tix import IMAGE, MAX
 import pygame
 from Game import Game
 from Move import Move
