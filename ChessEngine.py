@@ -7,22 +7,20 @@ class Game():
 
     def __init__(self):
         self.board = [
-            ["bR","--","--","--","bK","--","--","bR"],
+            ["bR","bN","bB","bQ","bK","bB","bN","bR"],
             ["bP","bP","bP","bP","bP","bP","bP","bP"],
             ["--","--","--","--","--","--","--","--"],
             ["--","--","--","--","--","--","--","--"],
             ["--","--","--","--","--","--","--","--"],
             ["--","--","--","--","--","--","--","--"],
             ["wP","wP","wP","wP","wP","wP","wP","wP"],
-            ["wR","--","--","--","wK","--","--","wR"]
+            ["wR","wN","wB","wQ","wK","wB","wN","wR"]
         ]
         self.whiteToMove = True
         self.moveLog = []
         self.undoLog = []
         self.whiteKingPosition = (7,4)
         self.blackKingPosition = (0,4)
-
-        #mates
         self.checkMate = False
         self.staleMate = False
 
@@ -30,23 +28,10 @@ class Game():
         self.enpassantPossible = ()
 
         #castling
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        self.blackKinghasMoved = False
-        self.whiteKinghasMoved = False
-        self.blackKingSideRookhasMoved = False
-        self.blackQueenSideRookhasMoved = False
-        self.whiteKingSideRookhasMoved = False
-        self.whiteKingSideRokkhasMoved = False
-
-=======
-=======
->>>>>>> Stashed changes
         self.currentCastleRights = CastleRights(True, True, True, True) #current rights
         self.castleRightsLog = [CastleRights(self.currentCastleRights.wks,self.currentCastleRights.bks,
                                             self.currentCastleRights.wqs,self.currentCastleRights.bqs)] #log of rights
     
->>>>>>> Stashed changes
     def makeMove(self, move):
         """Makes a move
 
@@ -62,11 +47,9 @@ class Game():
         if move.pieceMoved[1] == 'K':
             if move.pieceMoved[0] == 'w': # updates white king location if white king moved
                 self.whiteKingPosition = (move.endRow, move.endCol)
-                self.whiteKinghasMoved = True
             else: #updates black king location if black king moved
                 self.blackKingPosition = (move.endRow, move.endCol)
-                self.blackKinghasMoved = True
-
+        
         #updates pawn to Queen if pawn is promoted
         if move.isPawnPromotion:
             self.board[move.endRow][move.endCol] = 'bQ' if self.whiteToMove else 'wQ'
@@ -81,33 +64,6 @@ class Game():
         else:
             self.enpassantPossible = ()
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        #castling move the rook
-        if (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == 2): #King side castling
-            if move.pieceMoved[0] == 'b':
-                print('king side black castling')
-                self.board[0][7] = '--' #removes Rook
-                self.board[0][5] = 'bR' #adds Rook back
-            elif move.pieceMoved[0] == 'w':
-                print('king side white castling')
-                self.board[7][7] = '--' #removes Rook
-                self.board[7][5] = 'wR' #adds white Rook back
-            self.whiteToMove = not self.whiteToMove
-        if (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == -2): #Queen side castling
-            if move.pieceMoved[0] == 'b':
-                print('queen side black castling')
-                self.board[0][0] = '--' #removes Rook
-                self.board[0][3] = 'bR' #adds Rook back
-            elif move.pieceMoved[0] == 'w':
-                print('queen side white castling')
-                self.board[7][0] = '--' #removes Rook
-                self.board[7][3] = 'wR' #adds white Rook back   
-            self.whiteToMove = not self.whiteToMove         
-
-=======
-=======
->>>>>>> Stashed changes
         #update castle rights
         self.updateCastleRights(move)
         self.castleRightsLog.append(CastleRights(self.currentCastleRights.wks,self.currentCastleRights.bks,
@@ -121,13 +77,7 @@ class Game():
             elif move.isCastleQueenSide:
                 self.board[move.startRow][3] = self.board[move.startRow][0]
                 self.board[move.startRow][0] = '--'
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     
-
-    #undo king movements needs to set kinghasmoved back to false if king has not moved (idea, look at all movelogs to see if king has moved)
     def undoMove(self):
         """Undo the last move in the moveLog variable of the game object
         """
@@ -144,58 +94,12 @@ class Game():
                 else: #black king location to be updated
                     self.blackKingPosition = (move.startRow, move.startCol)
             
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            # restore pawn on the enpassant move
-            if move.isEnpassant:
-=======
-=======
->>>>>>> Stashed changes
             #restore pawn captured on enpassant
             if move.isEnpassantMove:
->>>>>>> Stashed changes
                 self.board[move.endRow][move.endCol] = '--'
                 self.board[move.startRow][move.endCol] = move.pieceCaptured
                 lastMove = self.moveLog[-1] #get previous move
                 self.enpassantPossible = ((lastMove.startRow+lastMove.endRow)//2,lastMove.endCol) #restore enpassantPossibleVariable
-<<<<<<< Updated upstream
-=======
-
-            #undo castle rights update
-            self.castleRightsLog.pop()
-            castleRights = self.castleRightsLog[-1]
-            self.currentCastleRights = CastleRights(castleRights.wks,castleRights.bks,castleRights.wqs,castleRights.bqs)
-
-            #undo castle moves (change rooks back)
-            if move.isCastle:
-                if move.isCastleKingSide:
-                    self.board[move.startRow][7] = self.board[move.startRow][5]
-                    self.board[move.startRow][5] = '--'
-                elif move.isCastleQueenSide:
-                    self.board[move.startRow][0] = self.board[move.startRow][3]
-                    self.board[move.startRow][3] = '--'
-            
-    def updateCastleRights(self, move):
-        if move.pieceMoved == 'bK':
-            self.currentCastleRights.bks = False
-            self.currentCastleRights.bqs = False
-        elif move.pieceMoved == 'wK':
-            self.currentCastleRights.wks = False
-            self.currentCastleRights.wqs = False
-        elif move.pieceMoved == 'wR':
-            if move.startRow == 7:
-                if move.startCol == 0: #left rook
-                    self.currentCastleRights.wqs = False
-                elif move.startCol == 7: #right rook
-                    self.currentCastleRights.wks = False
-        elif move.pieceMoved == 'bR':
-            if move.startRow == 0:
-                if move.startCol == 0: #left rook
-                    self.currentCastleRights.bqs = False
-                elif move.startCol == 7: #right rook
-                    self.currentCastleRights.bks = False
-
->>>>>>> Stashed changes
 
             #undo castle rights update
             self.castleRightsLog.pop()
@@ -232,25 +136,8 @@ class Game():
                     self.currentCastleRights.bks = False
 
 
-            #restore rook on castling
-            if move.isKingSideCastling:
-                if move.pieceMoved == 'wK':
-                    self.board[7][5] = '--'
-                    self.board[7][7] = 'wR'
-                if move.pieceMoved == 'bK':
-                    self.board[0][5] = '--'
-                    self.board[0][7] = 'bR'
-            
-            if move.isQueenSideCastling:
-                if move.pieceMoved == 'wK':
-                    self.board[7][3] = '--'
-                    self.board[7][0] = 'wR'
-                if move.pieceMoved == 'bK':
-                    self.board[0][3] = '--'
-                    self.board[0][0] = 'bR'
 
     def getValidMoves(self):
-        return self.getAllPossibleMoves() # DELETE THIS LINE TO GET VALID MOVES WORKING AGAIN
         tempEnpassantPossible = self.enpassantPossible
         moves =  self.getAllPossibleMoves()
         for move in reversed(moves):
@@ -323,14 +210,14 @@ class Game():
                     moves.append(Move((r, c), (r - 1, c - 1), self.board))
                 elif (r - 1, c - 1) == self.enpassantPossible:
                     print('called')
-                    moves.append(Move((r, c), (r - 1, c - 1), self.board, isEmpassant=True))
+                    moves.append(Move((r, c), (r - 1, c - 1), self.board, isEmpassantMove=True))
                 
             if self.inRange(r - 1, c + 1): 
                 if self.board[r - 1][c + 1][0] == 'b': #allow capture if black on diagonal in front (right)
                     moves.append(Move((r, c), (r - 1, c + 1), self.board))
                 elif (r - 1, c + 1) == self.enpassantPossible:
                     print('called')
-                    moves.append(Move((r, c), (r - 1, c + 1), self.board, isEmpassant=True))       
+                    moves.append(Move((r, c), (r - 1, c + 1), self.board, isEmpassantMove=True))       
 
         else: #black pawn moving
             if self.inRange(r+1,c):
@@ -344,13 +231,13 @@ class Game():
                     moves.append(Move((r, c), (r + 1, c - 1), self.board))
                 elif (r + 1, c - 1) == self.enpassantPossible:
                     print('called')
-                    moves.append(Move((r, c), (r + 1, c - 1), self.board, isEmpassant=True))                    
+                    moves.append(Move((r, c), (r + 1, c - 1), self.board, isEmpassantMove=True))                    
             if self.inRange(r + 1, c + 1):
                 if self.board[r + 1][c + 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c + 1), self.board))            
                 elif (r + 1, c + 1) == self.enpassantPossible:
                     print('called')
-                    moves.append(Move((r, c), (r + 1, c + 1), self.board, isEmpassant=True))     
+                    moves.append(Move((r, c), (r + 1, c + 1), self.board, isEmpassantMove=True))     
         return moves
 
     def getRookMoves(self, r, c, moves):
@@ -408,54 +295,6 @@ class Game():
                 elif self.board[r+j][c+k][0] == 'b' and self.board[r][c][0] == 'w':
                     moves.append(Move((r,c),(r+j,c+k),self.board))
                 elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                    moves.append(Move((r,c),(r+j,c+k),self.board))
-
-        #castling moved flags
-        whiteKingMoved = False
-        blackKingMoved = False
-        kingSideBlackRookMoved = False
-        queenSideBlackRookMoved = False
-        kingSideWhiteRookMoved = False 
-        queenSideWhiteRookMoved = False
-
-        # checks all moves previouly made to see if kings or rooks have moved and update the flags
-        for i in range(len(self.moveLog)):
-            if self.moveLog[i].pieceMoved == 'wK':
-                whiteKingMoved = True
-            if self.moveLog[i].pieceMoved == 'bK':
-                blackKingMoved = True
-            if self.moveLog[i].pieceMoved == 'bR':
-                if self.moveLog[i].startCol == 7:
-                    kingSideBlackRookMoved = True
-                if self.moveLog[i].startCol == 0:
-                    queenSideBlackRookMoved = True
-            if self.moveLog[i].pieceMoved == 'wR':
-                if self.moveLog[i].startCol == 7:
-                    kingSideWhiteRookMoved = True
-                if self.moveLog[i].startCol == 0:
-                    queenSideWhiteRookMoved = True
-
-
-        #castling checks if not moved and no obstructions (DOES NOT CHECK FOR IN CHECK AND THROUGH CHECK CONDITIONS YET)
-        if (not whiteKingMoved and c == 4 and r == 7):
-            if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideWhiteRookMoved):
-                moves.append((Move((r,c),(r,c+2), self.board, isKingSideCastling=True)))
-            
-            if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideWhiteRookMoved):
-                moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))       
-
-        if (not blackKingMoved and c == 4) and r == 0:
-            if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideBlackRookMoved):
-                moves.append((Move((r,c),(r,c+2), self.board, isKingSideCastling=True)))
-            
-            if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideBlackRookMoved):
-                moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))               
-
-=======
-=======
->>>>>>> Stashed changes
                     moves.append(Move((r,c),(r+j,c+k),self.board)) 
 
         moves = self.getCastleMoves(r,c,moves)
@@ -483,10 +322,6 @@ class Game():
                 #if (self.sqUnderAttack(r,c-1) and self.sqUnderAttack(r,c-2) and self.sqUnderAttack(r, c-3)):
                     if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--'):
                         moves.append(Move((r,c,),(r,c-2),self.board,isCastleQueenSide=True))
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         return moves
 
     def getKnightMoves(self, r, c, moves):
@@ -530,15 +365,7 @@ class Move():
     filesToCols = {'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    def __init__(self, startSq, endSq, board, isEmpassant=False, isQueenSideCastling=False, isKingSideCastling=False):
-=======
     def __init__(self, startSq, endSq, board, isEmpassantMove=False, isCastleKingSide=False, isCastleQueenSide=False):
->>>>>>> Stashed changes
-=======
-    def __init__(self, startSq, endSq, board, isEmpassantMove=False, isCastleKingSide=False, isCastleQueenSide=False):
->>>>>>> Stashed changes
         self.startRow = startSq[0]
         self.startCol = startSq[1]
         self.endRow = endSq[0]
@@ -550,29 +377,16 @@ class Move():
         self.isPawnPromotion = (self.pieceMoved == 'wP' and self.endRow == 0) or (self.pieceMoved == 'bP' and self.endRow == 7)
         
         #enpassant
-        self.isEnpassant = isEmpassant
+        self.isEnpassantMove = isEmpassantMove
 
         #get captured piece if isEnpassantMove
-        if self.isEnpassant:
+        if self.isEnpassantMove:
             self.pieceCaptured = board[self.startRow][self.endCol]
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        #castling
-        self.isQueenSideCastling = isQueenSideCastling
-        self.isKingSideCastling = isKingSideCastling
-
-=======
-=======
->>>>>>> Stashed changes
         #castle flags
         self.isCastleKingSide = isCastleKingSide
         self.isCastleQueenSide = isCastleQueenSide
         self.isCastle = (self.isCastleKingSide or self.isCastleQueenSide)
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol 
     
@@ -582,7 +396,7 @@ class Move():
         return False
     
     def __str__(self):
-        return f"    Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassant}), isPawnPromotion: ({self.isPawnPromotion}), isQueenSideCastling: ({self.isQueenSideCastling}), isKingSideCastling: ({self.isKingSideCastling})"
+        return f"    Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion})"
         
 
     def getChessNotation(self):
