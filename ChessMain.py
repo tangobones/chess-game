@@ -36,7 +36,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     gameOver = False
-    playerOne = True #If human is playing white this must be true if AI is playing this needs to be false
+    playerOne = False #If human is playing white this must be true if AI is playing this needs to be false
     playerTwo = False #same as above but for black
     
     # main game loop with all event listners and function calls
@@ -82,7 +82,9 @@ def main():
                     sqSelected = ()
                     playerClicks = []
                     moveMade = True
-                    AIMove = ChessAI.findRandomMove(validMoves)
+                    AIMove = ChessAI.findBestMove(gs, validMoves)
+                    if AIMove is None:
+                        AIMove = ChessAI.findRandomMove(validMoves)
                     gs.makeMove(AIMove)
                     if animation: animateMove(AIMove, screen, gs, clock)
                     
@@ -128,7 +130,7 @@ def main():
                 drawText(screen, "Game Ended: White wins by checkmate")
         if gs.staleMate:
             gameOver = True
-            drawText(screen, "Game Ended: Stalemater")
+            drawText(screen, "Game Ended: Stalemate")
 
         # ticks and updates screen
         clock.tick(MAX_FPS)
