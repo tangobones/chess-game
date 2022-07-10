@@ -1,4 +1,4 @@
-import pygame as p
+import pygame
 from Game import Game
 from Move import Move
 
@@ -13,18 +13,18 @@ def loadImages():
     """
     pieces = ['bR','bN','bB','bQ','bK','bP','wR','wN','wB','wQ','wK','wP']
     for piece in pieces:
-        IMAGES[piece] = p.image.load(f'resources/{piece}.png')
+        IMAGES[piece] = pygame.image.load(f'resources/{piece}.png')
 
 def main():
     """Main program loop and initialization protocols
     """
 
     # initialization 
-    p.init() 
+    pygame.init() 
     loadImages()
-    screen = p.display.set_mode((WIDTH, HEIGHT))
-    clock = p.time.Clock()
-    screen.fill(p.Color('white'))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    clock = pygame.time.Clock()
+    screen.fill(pygame.Color('white'))
     gs = Game()
     validMoves = gs.getValidMoves()
     
@@ -37,15 +37,15 @@ def main():
     # main game loop with all event listners and function calls
     while running: 
         # event listner
-        for e in p.event.get():
+        for e in pygame.event.get():
             
             # quits the game when windown is closed
-            if e.type == p.QUIT:
+            if e.type == pygame.QUIT:
                 running = False
             
             # mouse handler
-            elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()
+            elif e.type == pygame.MOUSEBUTTONDOWN:
+                location = pygame.mouse.get_pos()
                 col = location[0]//SQ_SIZE
                 row = location[1]//SQ_SIZE
                 if sqSelected == (row, col): # clicking on the same piece twice undo the click
@@ -76,8 +76,8 @@ def main():
                         playerClicks = [sqSelected]
             
             # keyboard handler
-            elif e.type == p.KEYDOWN:
-                if e.key == p.K_z:
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_z:
                     gs.undoMove()
                     moveMade = True
 
@@ -96,7 +96,7 @@ def main():
 
         # ticks and updates screen
         clock.tick(MAX_FPS)
-        p.display.flip()
+        pygame.display.flip()
 
 def drawGameState(screen, gs, playerClicks, validMoves):
     """Draws game state to the screen
@@ -121,10 +121,10 @@ def drawPossibleMoves(screen, playerClicks, validMoves):
         possibleMoves.remove(playerClicks[0])
 
     for move in possibleMoves:
-        color = p.Color('light green')
+        color = pygame.Color('light green')
         r, c = move
         padding = 10
-        p.draw.rect(screen, color, p.Rect(c*SQ_SIZE + padding, r*SQ_SIZE + padding, SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
+        pygame.draw.rect(screen, color, pygame.Rect(c*SQ_SIZE + padding, r*SQ_SIZE + padding, SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
 
 def piecePossibleMoves(startSq, validMoves):
     possibleMovesSq = []
@@ -138,10 +138,10 @@ def piecePossibleMoves(startSq, validMoves):
 
 def drawSelectedPiece(screen, playerClicks):
     if len(playerClicks) == 1:
-        color = p.Color('light yellow')
+        color = pygame.Color('light yellow')
         r = playerClicks[0][0]
         c = playerClicks[0][1]
-        p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        pygame.draw.rect(screen, color, pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 def drawBoard(screen):
     """Draws the board to the screen
@@ -149,11 +149,11 @@ def drawBoard(screen):
     Args:
         screen (pygame screen object): pygame screen
     """
-    colors = [p.Color('white'),p.Color('gray')]
+    colors = [pygame.Color('white'), pygame.Color('gray')]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[(r + c) % 2]
-            p.draw.rect(screen,color,p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            pygame.draw.rect(screen,color,pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 def drawPieces(screen, board):
     """Draw pieces to the screen
@@ -166,7 +166,7 @@ def drawPieces(screen, board):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != '--':
-                screen.blit(IMAGES[piece],p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                screen.blit(IMAGES[piece], pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 if __name__ == '__main__':
     main()
