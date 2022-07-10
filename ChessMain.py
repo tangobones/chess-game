@@ -107,12 +107,15 @@ def drawGameState(screen, gs, playerClicks, validMoves):
         playerClicks (list of tuples): list of current player clicks (maximum of two clicks, startSq and endSq)
     """
     drawBoard(screen)
+
+    #draw highlights
     if len(playerClicks) > 0:
-        drawSelectedPiece(screen, playerClicks)    
-        drawPossibleMoves(screen, playerClicks, validMoves)
+        highlightSelectedPiece(screen, playerClicks)    
+        highlightPossibleMoves(screen, playerClicks, validMoves)
+
     drawPieces(screen, gs.board)
 
-def drawPossibleMoves(screen, playerClicks, validMoves):
+def highlightPossibleMoves(screen, playerClicks, validMoves):
     startSq = playerClicks[0]
     possibleMoves = []
     possibleMoves = piecePossibleMoves(startSq, validMoves)
@@ -123,8 +126,11 @@ def drawPossibleMoves(screen, playerClicks, validMoves):
     for move in possibleMoves:
         color = pygame.Color('light green')
         r, c = move
-        padding = 10
-        pygame.draw.rect(screen, color, pygame.Rect(c*SQ_SIZE + padding, r*SQ_SIZE + padding, SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
+        padding = 0 # adds padding to the selected piece valid moves
+        s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
+        s.set_alpha(100)
+        s.fill(color)
+        screen.blit(s, (c*SQ_SIZE + padding, r*SQ_SIZE + padding))
 
 def piecePossibleMoves(startSq, validMoves):
     possibleMovesSq = []
@@ -136,12 +142,16 @@ def piecePossibleMoves(startSq, validMoves):
             possibleMovesSq.append(square)
     return possibleMovesSq
 
-def drawSelectedPiece(screen, playerClicks):
+def highlightSelectedPiece(screen, playerClicks):
     if len(playerClicks) == 1:
         color = pygame.Color('light yellow')
         r = playerClicks[0][0]
         c = playerClicks[0][1]
-        pygame.draw.rect(screen, color, pygame.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        padding = 0 # adds padding to the selected piece
+        s = pygame.Surface((SQ_SIZE - padding * 2, SQ_SIZE - padding * 2))
+        s.set_alpha(150)
+        s.fill(color)
+        screen.blit(s, (c*SQ_SIZE + padding, r*SQ_SIZE + padding))
 
 def drawBoard(screen):
     """Draws the board to the screen
