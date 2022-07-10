@@ -59,6 +59,8 @@ def main():
                 if len(playerClicks) == 2: # perform move if two clicks already logged
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                     print(move.getChessNotation())
+                    
+                    #Prints moveLog for debugging
                     print("Move Log: ")
                     for i in range(len(gs.moveLog)):
                         print(gs.moveLog[i])
@@ -66,6 +68,7 @@ def main():
                     for i in range(len(validMoves)):
                         if move == validMoves[i]:
                             gs.makeMove(validMoves[i])
+                            print('called')
                             moveMade = True
                             sqSelected = ()
                             playerClicks = []
