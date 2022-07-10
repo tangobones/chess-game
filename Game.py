@@ -138,8 +138,6 @@ class Game():
                 elif move.startCol == 7: #right rook
                     self.currentCastleRights.bks = False
 
-
-
     def getValidMoves(self):
         tempEnpassantPossible = self.enpassantPossible
         tempCastleRights = CastleRights(self.currentCastleRights.wks, self.currentCastleRights.bks, self.currentCastleRights.wqs, self.currentCastleRights.bqs)

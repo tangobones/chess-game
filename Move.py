@@ -40,8 +40,7 @@ class Move():
         return False
     
     def __str__(self):
-        return f" Chess Notation: ({self.getChessNotation()}) --> Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}), isCastleKingSide({self.isCastleKingSide}), isCastleQuennSide: ({self.isCastleQueenSide})"
-        
+        return f" Chess Notation: ({self.getChessNotation()}) --> Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}), isCastleKingSide({self.isCastleKingSide}), isCastleQuennSide: ({self.isCastleQueenSide})"      
 
     def getChessNotation(self):
         """Returns chess notation

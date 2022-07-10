@@ -31,7 +31,7 @@ def main():
     moveMade = False # flag variable for when a move is made
     
     running = True
-    animation = False
+    animation = True
     sqSelected = ()
     playerClicks = []
     gameOver = False
