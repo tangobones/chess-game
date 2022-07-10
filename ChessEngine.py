@@ -72,20 +72,26 @@ class Game():
             self.enpassantPossible = ()
 
         #castling move the rook
-        if move.isKingSideCastling:
-            if move.pieceMoved == 'bK':
-                self.board[0][7] == '--' #removes Rook
-                self.board[0][5] == 'bR' #adds Rook back
-            elif move.pieceMoved == 'wK':
-                self.board[7][7] == '--' #removes Rook
-                self.board[7][5] == 'wR' #adds white Rook back
-        elif move.isQueenSideCastling:
-            if move.pieceMoved == 'bK':
-                self.board[0][0] == '--' #removes Rook
-                self.board[0][3] == 'bR' #adds Rook back
-            elif move.pieceMoved == 'wK':
-                self.board[7][0] == '--' #removes Rook
-                self.board[7][3] == 'wR' #adds white Rook back            
+        if (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == 2): #King side castling
+            if move.pieceMoved[0] == 'b':
+                print('king side black castling')
+                self.board[0][7] = '--' #removes Rook
+                self.board[0][5] = 'bR' #adds Rook back
+            elif move.pieceMoved[0] == 'w':
+                print('king side white castling')
+                self.board[7][7] = '--' #removes Rook
+                self.board[7][5] = 'wR' #adds white Rook back
+            self.whiteToMove = not self.whiteToMove
+        elif (move.pieceMoved[1] == 'K' and (move.endCol - move.startCol) == -2): #Queen side castling
+            if move.pieceMoved[0] == 'b':
+                print('queen side black castling')
+                self.board[0][0] = '--' #removes Rook
+                self.board[0][3] = 'bR' #adds Rook back
+            elif move.pieceMoved[0] == 'w':
+                print('queen side white castling')
+                self.board[7][0] = '--' #removes Rook
+                self.board[7][3] = 'wR' #adds white Rook back   
+            self.whiteToMove = not self.whiteToMove         
 
     
 
@@ -106,12 +112,30 @@ class Game():
                 else: #black king location to be updated
                     self.blackKingPosition = (move.startRow, move.startCol)
             
-            if move.isEnpassantMove:
+            # restore pawn on the enpassant move
+            if move.isEnpassant:
                 self.board[move.endRow][move.endCol] = '--'
                 self.board[move.startRow][move.endCol] = move.pieceCaptured
 
+            #restore rook on castling
+            if move.isKingSideCastling:
+                if move.pieceMoved == 'wK':
+                    self.board[7][5] = '--'
+                    self.board[7][7] = 'wR'
+                if move.pieceMoved == 'bK':
+                    self.board[0][5] = '--'
+                    self.board[0][7] = 'bR'
+            
+            if move.isQueenSideCastling:
+                if move.pieceMoved == 'wK':
+                    self.board[7][3] = '--'
+                    self.board[7][0] = 'wR'
+                if move.pieceMoved == 'bK':
+                    self.board[0][3] = '--'
+                    self.board[0][0] = 'bR'
 
     def getValidMoves(self):
+        return self.getAllPossibleMoves()
         tempEnpassantPossible = self.enpassantPossible
         moves =  self.getAllPossibleMoves()
         for move in reversed(moves):
@@ -271,38 +295,45 @@ class Game():
                 elif self.board[r+j][c+k][0] == 'w' and self.board[r][c][0] == 'b':
                     moves.append(Move((r,c),(r+j,c+k),self.board))
 
-        #castling checks if king and rooks have moved
-        whiteKingMoved = blackKingMoved = kingSideBlackRookMoved = queenSideBlackRookMoved = kingSideWhiteRookMoved = queenSideWhiteRookMoved = False
-        for move in self.moveLog:
-            if move.pieceMoved == 'wK':
+        #castling moved flags
+        whiteKingMoved = False
+        blackKingMoved = False
+        kingSideBlackRookMoved = False
+        queenSideBlackRookMoved = False
+        kingSideWhiteRookMoved = False 
+        queenSideWhiteRookMoved = False
+
+        # checks all moves previouly made to see if kings or rooks have moved and update the flags
+        for i in range(len(self.moveLog)):
+            if self.moveLog[i].pieceMoved == 'wK':
                 whiteKingMoved = True
-            elif move.pieceMoved == 'bK':
+            if self.moveLog[i].pieceMoved == 'bK':
                 blackKingMoved = True
-            elif move.pieceMoved == 'bR':
-                if move.startCol == 7:
+            if self.moveLog[i].pieceMoved == 'bR':
+                if self.moveLog[i].startCol == 7:
                     kingSideBlackRookMoved = True
-                elif move.startCol == 0:
+                if self.moveLog[i].startCol == 0:
                     queenSideBlackRookMoved = True
-            elif move.pieceMoved == 'wR':
-                if move.startCol == 7:
+            if self.moveLog[i].pieceMoved == 'wR':
+                if self.moveLog[i].startCol == 7:
                     kingSideWhiteRookMoved = True
-                elif move.startCol == 0:
+                if self.moveLog[i].startCol == 0:
                     queenSideWhiteRookMoved = True
 
 
-        #castling checks if not moved and no obstructions (DOES NOT CHECK FOR IN CHECK, THROUGH CHECK AND TO CHECK CONDITIONS YET)
-        if not whiteKingMoved and c == 4:
+        #castling checks if not moved and no obstructions (DOES NOT CHECK FOR IN CHECK AND THROUGH CHECK CONDITIONS YET)
+        if (not whiteKingMoved and c == 4):
             if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideWhiteRookMoved):
                 moves.append((Move((r,c),(r,c+2), self.board, isKingSideCastling=True)))
             
-            elif (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideWhiteRookMoved):
+            if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideWhiteRookMoved):
                 moves.append((Move((r,c),(r,c+2), self.board, isQueenSideCastling=True)))       
 
-        if not blackKingMoved and c == 4:
+        if (not blackKingMoved and c == 4):
             if (self.board[r][c+1] == '--' and self.board[r][c+2] == '--' and not kingSideBlackRookMoved):
                 moves.append((Move((r,c),(r,c-2), self.board, isKingSideCastling=True)))
             
-            elif (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideBlackRookMoved):
+            if (self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3] == '--' and not queenSideBlackRookMoved):
                 moves.append((Move((r,c),(r,c-2), self.board, isQueenSideCastling=True)))               
 
         return moves
@@ -344,10 +375,10 @@ class Move():
         self.isPawnPromotion = (self.pieceMoved == 'wP' and self.endRow == 0) or (self.pieceMoved == 'bP' and self.endRow == 7)
         
         #enpassant
-        self.isEnpassantMove = isEmpassant
+        self.isEnpassant = isEmpassant
 
         #get captured piece if isEnpassantMove
-        if self.isEnpassantMove:
+        if self.isEnpassant:
             self.pieceCaptured = board[self.startRow][self.endCol]
 
         #castling
@@ -363,7 +394,7 @@ class Move():
         return False
     
     def __str__(self):
-        return f"    Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassantMove}), isPawnPromotion: ({self.isPawnPromotion}), isQueenSideCastling: ({self.isQueenSideCastling}), isKingSideCastling: ({self.isKingSideCastling})"
+        return f"    Start Square: ({self.startRow},{self.startCol}), End Square: ({self.endRow},{self.endCol}), pieceMoved: ({self.pieceMoved}), PieceCaptured: ({self.pieceCaptured}), isEnpassantMove: ({self.isEnpassant}), isPawnPromotion: ({self.isPawnPromotion}), isQueenSideCastling: ({self.isQueenSideCastling}), isKingSideCastling: ({self.isKingSideCastling})"
         
 
     def getChessNotation(self):
