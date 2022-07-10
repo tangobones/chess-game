@@ -1,5 +1,6 @@
 import pygame as p
-import ChessEngine
+from Game import Game
+from Move import Move
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -24,7 +25,7 @@ def main():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
-    gs = ChessEngine.Game()
+    gs = Game()
     validMoves = gs.getValidMoves()
     
     moveMade = False # flag variable for when a move is made
@@ -57,7 +58,7 @@ def main():
                         sqSelected = ()
                         playerClicks = []    
                 if len(playerClicks) == 2: # perform move if two clicks already logged
-                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    move = Move(playerClicks[0], playerClicks[1], gs.board)
                     
                     for i in range(len(validMoves)):
                         if move == validMoves[i]:
