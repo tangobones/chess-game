@@ -118,6 +118,9 @@ class Game():
                 self.board[move.startRow][0] = self.board[move.startRow][3]
                 self.board[move.startRow][3] = '--'
             
+            self.checkMate = False
+            self.staleMate = False
+            
     def updateCastleRights(self, move):
         if move.pieceMoved == 'bK':
             self.currentCastleRights.bks = False

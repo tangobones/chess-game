@@ -36,7 +36,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     gameOver = False
-    playerOne = False #If human is playing white this must be true if AI is playing this needs to be false
+    playerOne = True #If human is playing white this must be true if AI is playing this needs to be false
     playerTwo = False #same as above but for black
     
     # main game loop with all event listners and function calls
@@ -79,14 +79,12 @@ def main():
                 
                 #AI move finder logic
                 if not gameOver and not isHumanTurn:
-                    sqSelected = ()
-                    playerClicks = []
-                    moveMade = True
-                    AIMove = ChessAI.findBestMove(gs, validMoves)
+                    AIMove = ChessAI.findBestMoveMinMax(gs, validMoves)
                     if AIMove is None:
                         AIMove = ChessAI.findRandomMove(validMoves)
                     gs.makeMove(AIMove)
                     if animation: animateMove(AIMove, screen, gs, clock)
+                    moveMade = True
                     
                 
                 #updated validMoves if move is made
@@ -105,6 +103,7 @@ def main():
                 if e.key == pygame.K_z: #press z to undo a move
                     gs.undoMove()
                     moveMade = True
+                    gameOver = False
                 if e.key == pygame.K_a: #press a to toggle animation effects
                     animation = not animation
                 if e.key == pygame.K_r: #press r to reset the board
@@ -114,9 +113,6 @@ def main():
                     playerClicks = []
                     moveMade = True
                     gameOver = False
-
-
-
 
         # draws new game state
         drawGameState(screen, gs, playerClicks, validMoves)
