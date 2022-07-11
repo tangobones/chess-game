@@ -5,16 +5,7 @@ CHECKMATE = 10000
 STALEMATE = 0
 DEPTH = 2
 
-
 def findRandomMove(validMoves):
-    """Random Move AI
-
-    Args:
-        validMoves (list of moves): list of all valid moves
-
-    Returns:
-        move: chosen random move
-    """
     return validMoves[random.randint(0, len(validMoves)-1)]
 
 #helper method to make the first recursive call
@@ -90,7 +81,6 @@ def scoreBoard(gs):
                 score += pieceScores[square[1]]
             elif square[0] == 'b':
                 score -= pieceScores[square[1]]
-    
     return score
 
 def scoreMaterial(board):
