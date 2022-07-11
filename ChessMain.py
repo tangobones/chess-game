@@ -36,7 +36,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     gameOver = False
-    playerOne = False #If human is playing white this must be true if AI is playing this needs to be false
+    playerOne = True #If human is playing white this must be true if AI is playing this needs to be false
     playerTwo = True #same as above but for black
     
     # main game loop with all event listners and function calls

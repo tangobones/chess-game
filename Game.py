@@ -156,6 +156,7 @@ class Game():
             self.makeMove(move)
             self.whiteToMove = not self.whiteToMove
             if self.inCheck():
+                print('removed')
                 moves.remove(move)
             self.whiteToMove = not self.whiteToMove
             self.undoMove()
@@ -176,9 +177,16 @@ class Game():
 
     def inCheck(self):
         if self.whiteToMove:
-            return self.sqUnderAttack(self.whiteKingPosition[0], self.whiteKingPosition[1])
+            #ans = self.squareUnderAttack(self.whiteKingPosition[0], self.whiteKingPosition[1],True)
+            ans = self.sqUnderAttack(self.whiteKingPosition[0], self.whiteKingPosition[1])
+            print(ans)
+            print(f'ans: {ans}, type: {type(ans)}')
+            return ans
         else:
-            return self.sqUnderAttack(self.blackKingPosition[0], self.blackKingPosition[1])
+            #ans = self.squareUnderAttack(self.blackKingPosition[0], self.blackKingPosition[1],False)
+            ans = self.sqUnderAttack(self.blackKingPosition[0], self.blackKingPosition[1])
+            print(f'ans: {ans}, type: {type(ans)}')
+            return ans
 
     def sqUnderAttack(self, r, c):
         self.whiteToMove = not self.whiteToMove
@@ -188,7 +196,105 @@ class Game():
             if move.endRow == r and move.endCol == c:
                 return True
         return False
-        
+    
+       
+       
+    """
+    AINDA TA BUGADO
+    """
+    def squareUnderAttack(self, r, c, whiteToMove):
+        allyColor = 'w' if whiteToMove else 'b'
+        enemyColor = 'b' if (allyColor == 'w') else 'b'
+        isUnderAttack = False
+        print(isUnderAttack)
+
+        #bishop attacks
+        isUnderAttack = (self.squareUnderAttackbyBishop(r,c,enemyColor, allyColor) or isUnderAttack)
+        print("Bishop Attack:" + str(isUnderAttack))
+        #knight attacks
+        isUnderAttack = (self.squareUnderAttackbyKnight(r,c,enemyColor, allyColor) or isUnderAttack)
+        print("Knight Attack:" + str(isUnderAttack))
+        #king attacks
+        isUnderAttack = (self.squareUnderAttackbyKing(r,c,enemyColor, allyColor) or isUnderAttack)
+        print("King Attack:" + str(isUnderAttack))
+        #pawn attacks
+        isUnderAttack = (self.squareUnderAttackbyPawn(r,c,enemyColor, allyColor) or isUnderAttack)
+        print("Pawn Attack:" + str(isUnderAttack))
+        #rook attacks
+        isUnderAttack = (self.squareUnderAttackbyRook(r,c,enemyColor, allyColor) or isUnderAttack)
+        print("Rook Attack:" + str(isUnderAttack))
+
+
+        return isUnderAttack
+
+    def squareUnderAttackbyRook(self, r, c, enemyColor, allyColor):
+        directions = [(1,0),(-1,0),(0,1),(0,-1)]
+        for dir in directions:
+            i,j = dir
+            dist = 1
+            while True:
+                if self.inRange(r+i*dist,c+j*dist):
+                    if self.board[r+i*dist][c+j*dist] == (enemyColor + 'R') or self.board[r+i*dist][c+j*dist] == (enemyColor + 'Q'):
+                        print('here')
+                        return True
+                    elif self.board[r+i*dist][c+j*dist][0] == allyColor:
+                        break
+                    dist += 1
+                else:
+                    break
+        return False
+             
+    def squareUnderAttackbyBishop(self, r, c, enemyColor, allyColor):
+        directions = [(1,1),(-1,-1),(-1,1),(1,-1)]
+        for dir in directions:
+            i,j = dir
+            dist = 1
+            while True:
+                if self.inRange(r+i*dist,c+j*dist):
+                    if (self.board[r+i*dist][c+j*dist] == (enemyColor + 'B')) or (self.board[r+i*dist][c+j*dist] == (enemyColor + 'Q')):
+                        return True
+                    elif (self.board[r+i*dist][c+j*dist][0] == allyColor):
+                        break
+                    dist += 1
+                else:
+                    break
+        return False
+             
+    def squareUnderAttackbyKnight(self, r, c, enemyColor, allyColor):
+        directions = [(2,1),(2,-1),(1,2),(1,-2),(-2,1),(-2,-1),(-1,2),(-1,-2)]
+        for dir in directions:
+            i,j = dir
+            if self.inRange(r+i,c+j):
+                if (self.board[r+i][c+j] == (enemyColor + 'N')):
+                    return True
+            else:
+                continue
+        return False
+       
+    def squareUnderAttackbyKing(self, r, c, enemyColor, allyColor):
+        directions = [(-1,-1),(0,1),(-1,1),(1,0),(1,1),(0,-1),(1,-1),(-1,0)]
+        for dir in directions:
+            i,j = dir
+            if self.inRange(r+i,c+j):
+                if (self.board[r+i][c+j] == (enemyColor + 'K')):
+                    return True
+            else:
+                continue
+        return False
+
+    def squareUnderAttackbyPawn(self, r, c, enemyColor, allyColor):
+        if enemyColor == 'w': #white pawn captures up
+            if self.board[r+1][c+1] == (enemyColor + 'P'): # right side capture
+                return True
+            elif self.board[r+1][c-1] == (enemyColor + 'P'): #left side capture
+                return True
+        elif enemyColor == 'b': #black pawn captures down
+            if self.board[r-1][c+1] == (enemyColor + 'P'):
+                return True
+            elif self.board[r-1][c-1] == (enemyColor + 'P'):
+                return True
+        return False
+
     def getAllPossibleMoves(self):
         moves = []
         for r in range(len(self.board)):
